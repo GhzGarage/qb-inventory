@@ -49,6 +49,7 @@ exports['qb-inventory']:OpenInventory(source, 'glovebox-'..plate)
 
 ## Shops
 ### How to create a shop (example from qb-shops)
+### We include coords in our shops because the inventory does distance checks, if you don't need a distance check you can put false or nil
 ```
 CreateThread(function()
     local shopInfo = {}
