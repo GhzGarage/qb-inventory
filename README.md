@@ -48,8 +48,8 @@ exports['qb-inventory']:OpenInventory(source, 'glovebox-'..plate)
 ### WE WILL NOT BE CREATING A WRAPPER FOR THE OLD EVENT
 
 ## Shops
-### How to create a shop (example from qb-shops)
 ### We include coords in our shops because the inventory does distance checks, if you don't need a distance check you can put false or nil
+### How to create a shop (example from qb-shops server/main.lua)
 ```
 CreateThread(function()
     local shopInfo = {}
