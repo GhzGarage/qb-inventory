@@ -104,9 +104,10 @@ RegisterCommand('hotbar', function(source)
 end, false)
 
 RegisterCommand('inventory', function(source)
-    local Player = QBCore.Functions.GetPlayer(source)
     if Player(source).state.inv_busy then return end
-    if not Player or Player.PlayerData.metadata['isdead'] or Player.PlayerData.metadata['inlaststand'] or Player.PlayerData.metadata['ishandcuffed'] then return end
+    local QBPlayer = QBCore.Functions.GetPlayer(source)
+    if not QBPlayer then return end
+    if not QBPlayer or QBPlayer.PlayerData.metadata['isdead'] or QBPlayer.PlayerData.metadata['inlaststand'] or QBPlayer.PlayerData.metadata['ishandcuffed'] then return end
     local inVehicle = GetVehiclePedIsIn(GetPlayerPed(source), false)
     if inVehicle ~= 0 then
         local plate = GetVehicleNumberPlateText(inVehicle)
@@ -123,3 +124,4 @@ RegisterCommand('inventory', function(source)
         OpenInventory(source)
     end)
 end, false)
+
