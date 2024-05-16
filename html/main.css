@@ -1,0 +1,524 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans&display=swap");
+
+div {
+    font-family: "Open Sans", sans-serif;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+#app {
+    height: 98vh;
+    width: 99vw;
+    background: transparent;
+}
+
+.inventory-container {
+    height: 100%;
+    width: 100%;
+}
+
+/* Player Inventory Styles */
+.player-inventory {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    position: absolute;
+    top: 26%;
+    left: 14.2%;
+    width: 28%;
+    height: 47.16%;
+    float: left;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.centered-player-inventory {
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Center both horizontally and vertically */
+}
+
+/* Other Inventory Styles */
+.other-inventory {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    position: absolute;
+    top: 26%;
+    right: 14.2%;
+    width: 28%;
+    height: 47.16%;
+    float: left;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.player-inventory-header {
+    position: absolute;
+    top: 21%;
+    left: 14.2%;
+    width: 27.7%;
+    height: fit-content;
+    float: left;
+    font-weight: bolder;
+    color: white;
+    display: flex;
+    flex-direction: column; /* Stack children in a column */
+    align-items: flex-start; /* Align items to the start (left) of the column */
+    padding: 5px; /* Add padding to create space around child elements */
+}
+
+.centered-inventory-header {
+    position: absolute;
+    top: 24%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Center the element perfectly */
+    width: 27.7%; /* Adjust the width as needed */
+    height: fit-content;
+    font-weight: bolder;
+    color: white;
+    display: flex;
+    flex-direction: column; /* Stack children in a column */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    padding: 5px; /* Add padding to create space around child elements */
+}
+
+.other-inventory-header {
+    position: absolute;
+    top: 21%;
+    right: 14.2%;
+    width: 27.7%;
+    height: fit-content;
+    float: left;
+    font-weight: bolder;
+    color: white;
+    display: flex;
+    flex-direction: column; /* Stack children in a column */
+    align-items: flex-start; /* Align items to the start (left) of the column */
+    padding: 5px; /* Add padding to create space around child elements */
+}
+
+.labels-container {
+    display: flex;
+    justify-content: space-between; /* Add space between child elements */
+    width: 100%; /* Ensure it takes the full width of the parent */
+}
+
+.inventory-label {
+    /* You can add styles for the name here, e.g., to align it to the left */
+    text-align: left;
+    flex-grow: 1; /* Allow it to grow and push the weight to the right */
+}
+
+.current-weight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align text to the right */
+    text-align: right;
+}
+
+.item-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px; /* Adjust the gap as needed */
+    align-content: flex-start;
+    width: 100%;
+}
+
+.item-slot {
+    position: relative;
+    display: flex; /* Added this line */
+    align-items: center; /* Added this line */
+    justify-content: center; /* Added this line */
+    width: calc(20% - 2px);
+    height: 10vh;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.item-slot-img {
+    display: flex;
+    justify-content: center; /* Center the image horizontally */
+    align-items: center; /* Center the image vertically */
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.item-slot-img img {
+    width: 50%;
+    height: auto; /* Keep this to maintain aspect ratio */
+}
+
+.item-slot-key {
+    font-weight: bolder;
+    color: #000000;
+    position: absolute;
+    top: 5px; /* Adjust according to your preference */
+    left: 5px; /* Adjust according to your preference */
+    width: 20px; /* Define your desired square size */
+    height: 20px; /* Define your desired square size */
+    background-color: #cccccc; /* Optional: give it a slight background to make it distinguishable */
+    display: flex;
+    align-items: center; /* Center the content vertically */
+    justify-content: center; /* Center the content horizontally */
+    border-radius: 3px;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1), 0 2px 2px rgba(0, 0, 0, 0.2);
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+}
+
+.item-slot-amount {
+    font-size: 0.7vh;
+    color: white;
+    position: absolute;
+    top: 5px; /* Adjust according to your preference */
+    right: 5px; /* Adjust according to your preference */
+    width: 20px; /* Define your desired square size */
+    height: 20px; /* Define your desired square size */
+    display: flex;
+    align-items: center; /* Center the content vertically */
+    justify-content: center; /* Center the content horizontally */
+}
+
+.item-price {
+    font-size: 0.7vh;
+    color: white;
+    position: absolute;
+    top: 5px; /* Adjust according to your preference */
+    left: 5px; /* Adjust according to your preference */
+    width: 20px; /* Define your desired square size */
+    height: 20px; /* Define your desired square size */
+    display: flex;
+    align-items: center; /* Center the content vertically */
+    justify-content: center; /* Center the content horizontally */
+}
+
+.item-slot-label {
+    position: absolute;
+    white-space: nowrap;
+    bottom: 0;
+    height: 1vh;
+    width: 99%;
+    background-color: #cccccc;
+    display: flex; /* Add this line */
+    justify-content: center; /* Add this line to center horizontally */
+    align-items: center; /* Add this line to center vertically */
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1), 0 2px 2px rgba(0, 0, 0, 0.2);
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+}
+
+.item-slot-durability {
+    position: absolute;
+    bottom: 0vh; /* This is the height of the item-slot-label, so adjust it if the height of the label changes */
+    width: 99%;
+    height: 6px; /* Height of the durability bar */
+    background-color: #2d2d2d;
+}
+
+.item-slot-durability-fill {
+    height: 100%;
+    transition: width 0.2s;
+}
+
+/* Define different colors based on the durability percentage */
+.item-slot-durability-fill.high {
+    background-color: green; /* Green when the durability is high */
+}
+
+.item-slot-durability-fill.medium {
+    background-color: yellow; /* Yellow when the durability is medium */
+}
+
+.item-slot-durability-fill.low {
+    background-color: red; /* Red when the durability is low */
+}
+
+.item-slot-label > p {
+    text-transform: uppercase;
+    font-weight: bolder;
+    color: #000000;
+    font-size: 0.7vh;
+    text-align: center;
+}
+
+/* Weight Bar Styles */
+
+.current-weight > p {
+    text-align: right;
+    padding-right: 5px;
+}
+
+.weight-bar {
+    width: 100%; /* Make the weight bar span the full width of the header */
+    background-color: #2d2d2d;
+}
+
+/* Style the weight bar fill */
+.weight-bar-fill {
+    height: 5px;
+    transition: width 0.2s;
+}
+
+/* Define different colors based on the percentage */
+.weight-bar-fill.low {
+    background-color: green;
+    /* Green when the weight is low */
+}
+
+.weight-bar-fill.medium {
+    background-color: yellow;
+    /* Yellow when the weight is medium */
+}
+
+.weight-bar-fill.high {
+    background-color: red;
+    /* Red when the weight is high */
+}
+
+/* Hotbar */
+
+.hotbar-container {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding-bottom: 3vh;
+}
+
+.hotbar {
+    display: flex;
+    justify-content: space-between;
+    width: 25vw;
+    padding: 0 10px;
+}
+
+.notification-container {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: 2vh;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.notification-slot {
+    position: relative;
+    width: 10vh;
+    height: 10vh;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.notification-title {
+    color: white;
+    align-self: flex-start;
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
+.notification-title p {
+    margin: 0;
+    padding: 0;
+    font-size: 0.7vh;
+}
+
+.required-item-container {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: 2vh;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.required-item {
+    display: flex;
+    justify-content: center;
+    width: 25vw;
+    padding: 0 10px;
+}
+
+.required-item .item-slot {
+    margin-left: 10px;
+}
+
+.context-menu {
+    position: absolute;
+    font-size: 1vh;
+    border-radius: 4px;
+    background-color: #2c2c2c;
+    border: 1px solid #000;
+    z-index: 1000;
+    width: fit-content;
+    cursor: pointer;
+    color: #ffffff;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 8%), 0 2px 2px rgb(0 0 0 / 3%), 0 4px 4px rgb(0 0 0 / 4%), 0 10px 8px rgb(0 0 0 / 5%), 0 15px 15px rgb(0 0 0 / 6%), 0 30px 30px rgb(0 0 0 / 7%), 0 70px 65px rgb(0 0 0 / 9%);
+}
+
+.context-menu li {
+    padding: 8px 12px; /* Slightly larger horizontal padding */
+    display: flex; /* To align the text and the icons */
+    align-items: center;
+}
+
+/* Input Container */
+
+.input-container {
+    position: absolute;
+    width: 4%; /* Adjust the width as needed */
+    top: calc(26% + ((47.16% - 3vh) / 2)); /* Calculate the top position */
+    left: 50%; /* Calculate the left position */
+    transform: translate(-50%, -50%);
+    background-color: #2c2c2c;
+    border-radius: 4px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 8%), 0 2px 2px rgb(0 0 0 / 3%), 0 4px 4px rgb(0 0 0 / 4%), 0 10px 8px rgb(0 0 0 / 5%), 0 15px 15px rgb(0 0 0 / 6%), 0 30px 30px rgb(0 0 0 / 7%), 0 70px 65px rgb(0 0 0 / 9%);
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.input-container input {
+    border: none;
+    background-color: transparent;
+    color: white;
+    font-size: 1vh;
+    width: 85%;
+    outline: none;
+    text-align: center;
+    flex: 1;
+}
+
+.clear-button {
+    margin-left: 5px;
+    background-color: #2c2c2c;
+    border: none;
+}
+
+.clear-button .fas {
+    color: white; /* Change this to your desired color */
+}
+
+.custom-tooltip {
+    max-width: 6vw;
+}
+
+.custom-tooltip .tooltip-header {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.custom-tooltip .tooltip-divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 5px 0;
+}
+
+.custom-tooltip .tooltip-description {
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.custom-tooltip .tooltip-info {
+    font-size: 0.9em;
+    margin: 5px 0;
+    margin-bottom: 10px;
+}
+
+.custom-tooltip .tooltip-info-key {
+    font-weight: bold;
+}
+
+.custom-tooltip .tooltip-weight {
+    font-size: 0.8em;
+    text-align: right;
+}
+
+.weapon-attachments {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 12vw;
+    height: 21vh;
+    border-radius: 50%;
+    margin: 0 auto;
+    top: 50%;
+    left: 15%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.weapon {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.attachment-slot {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.attachment-slot img {
+    width: 75%;
+    height: auto;
+}
+
+.attachment-slot:nth-child(0) {
+    transform: rotate(0deg) translate(150px) rotate(0deg);
+}
+
+.attachment-slot:nth-child(1) {
+    transform: rotate(0deg) translate(150px) rotate(0deg);
+}
+
+.attachment-slot:nth-child(2) {
+    transform: rotate(60deg) translate(150px) rotate(-60deg);
+}
+
+.attachment-slot:nth-child(3) {
+    transform: rotate(120deg) translate(150px) rotate(-120deg);
+}
+
+.attachment-slot:nth-child(4) {
+    transform: rotate(180deg) translate(150px) rotate(-180deg);
+}
+
+.attachment-slot:nth-child(5) {
+    transform: rotate(240deg) translate(150px) rotate(-240deg);
+}
+
+.attachment-slot:nth-child(6) {
+    transform: rotate(300deg) translate(150px) rotate(-300deg);
+}
+
+.attachment-slot:nth-child(7) {
+    transform: rotate(0deg) translate(150px) rotate(0deg);
+}
