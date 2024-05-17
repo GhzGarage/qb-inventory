@@ -90,15 +90,16 @@ RegisterCommand('closeInv', function(source)
 end, false)
 
 RegisterCommand('hotbar', function(source)
-    local Player = QBCore.Functions.GetPlayer(source)
     if Player(source).state.inv_busy then return end
-    if not Player or Player.PlayerData.metadata['isdead'] or Player.PlayerData.metadata['inlaststand'] or Player.PlayerData.metadata['ishandcuffed'] then return end
+    local QBPlayer = QBCore.Functions.GetPlayer(source)
+    if not QBPlayer then return end
+    if not QBPlayer or QBPlayer.PlayerData.metadata['isdead'] or QBPlayer.PlayerData.metadata['inlaststand'] or QBPlayer.PlayerData.metadata['ishandcuffed'] then return end
     local hotbarItems = {
-        Player.PlayerData.items[1],
-        Player.PlayerData.items[2],
-        Player.PlayerData.items[3],
-        Player.PlayerData.items[4],
-        Player.PlayerData.items[5],
+        QBPlayer.PlayerData.items[1],
+        QBPlayer.PlayerData.items[2],
+        QBPlayer.PlayerData.items[3],
+        QBPlayer.PlayerData.items[4],
+        QBPlayer.PlayerData.items[5],
     }
     TriggerClientEvent('qb-inventory:client:hotbar', source, hotbarItems)
 end, false)

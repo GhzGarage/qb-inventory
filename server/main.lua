@@ -105,10 +105,25 @@ end)
 
 -- Events
 
+RegisterNetEvent('qb-inventory:server:openVending', function()
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+    CreateShop({
+        name = 'vending',
+        label = 'Vending Machine',
+        coords = vendingMachineCoords,
+        slots = #Config.VendingItems,
+        items = Config.VendingItems
+    })
+    OpenShop(src, 'vending')
+end)
+
 RegisterNetEvent('qb-inventory:server:closeInventory', function(inventory)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then return end
+    if inventory:find('shop-') then return end
     if Drops[inventory] then
         Drops[inventory].isOpen = false
         return
@@ -212,6 +227,7 @@ QBCore.Functions.CreateCallback('qb-inventory:server:attemptPurchase', function(
         Player.Functions.RemoveMoney('cash', price, 'shop-purchase')
         local item = AddItem(source, itemInfo.name, amount, nil, itemInfo.info)
         if item then
+            TriggerClientEvent('qb-shops:client:UpdateShop', src, itemInfo, amount)
             cb(true)
         else
             Player.Functions.AddMoney('cash', price, 'shop-purchase-refund')

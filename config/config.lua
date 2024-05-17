@@ -38,7 +38,7 @@ Config = {
         'prop_vend_coffe_01',
     },
 
-    VendingItem = {
+    VendingItems = {
         { name = 'kurkakola',    price = 4, amount = 50 },
         { name = 'water_bottle', price = 4, amount = 50 },
     },

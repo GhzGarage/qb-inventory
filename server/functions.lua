@@ -363,35 +363,60 @@ local function SetupShopItems(shopItems)
     return items
 end
 
-local function CreateShop(shopData)
-    for shop, data in pairs(shopData) do
-        RegisteredShops['shop-' .. shop] = {
-            name = 'shop-' .. data.name,
-            label = data.label,
-            coords = data.coords,
-            slots = #data.items,
-            items = SetupShopItems(data.items)
+function CreateShop(shopData)
+    if shopData.name then
+        RegisteredShops[shopData.name] = {
+            name = shopData.name,
+            label = shopData.label,
+            coords = shopData.coords,
+            slots = #shopData.items,
+            items = SetupShopItems(shopData.items)
         }
+    else
+        for key, data in pairs(shopData) do
+            if type(data) == 'table' then
+                if data.name then
+                    local shopName = type(key) == 'number' and data.name or key
+                    RegisteredShops[shopName] = {
+                        name = shopName,
+                        label = data.label,
+                        coords = data.coords,
+                        slots = #data.items,
+                        items = SetupShopItems(data.items)
+                    }
+                else
+                    CreateShop(data)
+                end
+            end
+        end
     end
 end
 
 exports('CreateShop', CreateShop)
 
-local function OpenShop(source, name)
+function OpenShop(source, name)
+    local src = source
     if not name then return end
-    local shopId = 'shop-' .. name
-    if not RegisteredShops[shopId] then return end
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+    if not RegisteredShops[name] then return end
     local playerPed = GetPlayerPed(source)
     local playerCoords = GetEntityCoords(playerPed)
-    local distance = #(playerCoords - vector3(RegisteredShops[shopId].coords.x, RegisteredShops[shopId].coords.y, RegisteredShops[shopId].coords.z))
-    if distance > 5.0 then return end
-    OpenInventory(source, RegisteredShops[shopId].name, {
-        name = RegisteredShops[shopId].name,
-        label = RegisteredShops[shopId].label,
+    if RegisteredShops[name].coords then
+        local shopDistance = vector3(RegisteredShops[name].coords.x, RegisteredShops[name].coords.y, RegisteredShops[name].coords.z)
+        if shopDistance then
+            local distance = #(playerCoords - shopDistance)
+            if distance > 5.0 then return end
+        end
+    end
+    local formattedInventory = {
+        name = 'shop-' .. RegisteredShops[name].name,
+        label = RegisteredShops[name].label,
         maxweight = 1000000,
-        slots = #RegisteredShops[shopId].items,
-        inventory = RegisteredShops[shopId].items
-    })
+        slots = #RegisteredShops[name].items,
+        inventory = RegisteredShops[name].items
+    }
+    TriggerClientEvent('qb-inventory:client:openInventory', source, Player.PlayerData.items, formattedInventory)
 end
 
 exports('OpenShop', OpenShop)

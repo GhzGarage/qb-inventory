@@ -156,7 +156,7 @@ RegisterNetEvent('qb-inventory:client:UseWeapon', function(weaponData, shootbool
         GiveWeaponToPed(ped, weaponHash, 10, false, false)
         SetPedAmmo(ped, weaponHash, 10)
         SetCurrentPedWeapon(ped, weaponHash, true)
-        TriggerServerEvent('inventory:server:snowball', 'remove')
+        TriggerServerEvent('qb-inventory:server:snowball', 'remove')
         TriggerEvent('weapons:client:SetCurrentWeapon', weaponData, shootbool)
         currentWeapon = weaponName
     else
@@ -197,11 +197,6 @@ RegisterNUICallback('AttemptPurchase', function(data, cb)
     QBCore.Functions.TriggerCallback('qb-inventory:server:attemptPurchase', function(canPurchase)
         cb(canPurchase)
     end, data)
-end)
-
-RegisterNUICallback('RobMoney', function(data, cb)
-    TriggerServerEvent('police:server:RobPlayer', data.TargetId)
-    cb('ok')
 end)
 
 RegisterNUICallback('CloseInventory', function(data, cb)
