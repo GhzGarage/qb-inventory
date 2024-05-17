@@ -13,12 +13,18 @@ shared_scripts {
 }
 
 client_scripts {
-    'client/*.lua'
+    'client/main.lua',
+    'client/drops.lua',
+    'client/vehicles.lua',
+    'client/dumpsters.lua',
+    'client/vending.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'server/*.lua'
+    'server/main.lua',
+    'server/functions.lua',
+    'server/commands.lua',
 }
 
 ui_page 'html/index.html'

@@ -1,8 +1,34 @@
-QBCore = exports['qb-core']:GetCoreObject()
 local holdingDrop = false
 local bagObject = nil
 local heldDrop = nil
 CurrentDrop = nil
+
+-- Functions
+
+function GetDrops()
+    QBCore.Functions.TriggerCallback('qb-inventory:server:GetCurrentDrops', function(drops)
+        if drops then
+            for k, v in pairs(drops) do
+                local bag = NetworkGetEntityFromNetworkId(v.entityId)
+                if DoesEntityExist(bag) then
+                    exports['qb-target']:AddTargetEntity(bag, {
+                        options = {
+                            {
+                                icon = 'fas fa-backpack',
+                                label = Lang:t('menu.o_bag'),
+                                action = function()
+                                    TriggerServerEvent('qb-inventory:server:openDrop', k)
+                                    CurrentDrop = dropId
+                                end,
+                            },
+                        },
+                        distance = 2.5,
+                    })
+                end
+            end
+        end
+    end)
+end
 
 -- Events
 

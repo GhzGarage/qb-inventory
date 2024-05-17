@@ -1,3 +1,4 @@
+QBCore = exports['qb-core']:GetCoreObject()
 local hotbarShown = false
 local currentWeapon = nil
 
@@ -6,9 +7,7 @@ local currentWeapon = nil
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     LocalPlayer.state:set('inv_busy', false, true)
     PlayerData = QBCore.Functions.GetPlayerData()
-    QBCore.Functions.TriggerCallback('qb-inventory:server:GetCurrentDrops', function(theDrops)
-        Drops = theDrops
-    end)
+    GetDrops()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
@@ -189,42 +188,6 @@ end)
 
 -- NUI Callbacks
 
--- RegisterNUICallback('getCombineItem', function(data, cb)
---     cb(QBCore.Shared.Items[data.item])
--- end)
-
--- RegisterNUICallback('combineItem', function(data, cb)
---     Wait(150)
---     TriggerServerEvent('qb-inventory:server:combineItem', data.reward, data.fromItem, data.toItem)
---     cb('ok')
--- end)
-
--- RegisterNUICallback('combineWithAnim', function(data, cb)
---     local ped = PlayerPedId()
---     local combineData = data.combineData
---     local aDict = combineData.anim.dict
---     local aLib = combineData.anim.lib
---     local animText = combineData.anim.text
---     local animTimeout = combineData.anim.timeOut
---     QBCore.Functions.Progressbar('combine_anim', animText, animTimeout, false, true, {
---         disableMovement = false,
---         disableCarMovement = true,
---         disableMouse = false,
---         disableCombat = true,
---     }, {
---         animDict = aDict,
---         anim = aLib,
---         flags = 16,
---     }, {}, {}, function() -- Done
---         StopAnimTask(ped, aDict, aLib, 1.0)
---         TriggerServerEvent('qb-inventory:server:combineItem', combineData.reward, data.requiredItem, data.usedItem)
---     end, function() -- Cancel
---         StopAnimTask(ped, aDict, aLib, 1.0)
---         QBCore.Functions.Notify(Lang:t('notify.failed'), 'error')
---     end)
---     cb('ok')
--- end)
-
 RegisterNUICallback('PlayDropFail', function(_, cb)
     PlaySound(-1, 'Place_Prop_Fail', 'DLC_Dmod_Prop_Editor_Sounds', 0, 0, 1)
     cb('ok')
@@ -238,11 +201,6 @@ end)
 
 RegisterNUICallback('RobMoney', function(data, cb)
     TriggerServerEvent('police:server:RobPlayer', data.TargetId)
-    cb('ok')
-end)
-
-RegisterNUICallback('Notify', function(data, cb)
-    QBCore.Functions.Notify(data.message, data.type)
     cb('ok')
 end)
 
