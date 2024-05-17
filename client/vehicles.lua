@@ -30,6 +30,18 @@ end
 
 QBCore.Functions.CreateClientCallback('qb-inventory:client:vehicleCheck', function(cb)
     local ped = PlayerPedId()
+
+    -- Glovebox
+    local inVehicle = GetVehiclePedIsIn(ped, false)
+    if inVehicle ~= 0 then
+        local plate = GetVehicleNumberPlateText(inVehicle)
+        local class = GetVehicleClass(inVehicle)
+        local inventory = 'glovebox-' .. plate
+        cb(inventory, class)
+        return
+    end
+
+    -- Trunk
     local vehicle, distance = QBCore.Functions.GetClosestVehicle()
     if vehicle ~= 0 and distance < 5 then
         local pos = GetEntityCoords(ped)
@@ -40,8 +52,9 @@ QBCore.Functions.CreateClientCallback('qb-inventory:client:vehicleCheck', functi
             if GetVehicleDoorLockStatus(vehicle) < 2 then
                 OpenTrunk(vehicle)
                 local class = GetVehicleClass(vehicle)
-                local netId = NetworkGetNetworkIdFromEntity(vehicle)
-                cb(netId, class)
+                local plate = GetVehicleNumberPlateText(vehicle)
+                local inventory = 'trunk-' .. plate
+                cb(inventory, class)
             else
                 QBCore.Functions.Notify(Lang:t('notify.vlocked'), 'error')
                 return

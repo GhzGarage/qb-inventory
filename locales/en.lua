@@ -39,6 +39,7 @@ local Translations = {
     },
     menu = {
         ['vending'] = 'Vending Machine',
+        ['bin'] = 'Open Dumpster',
         ['craft'] = 'Craft',
         ['o_bag'] = 'Open Bag',
     },
