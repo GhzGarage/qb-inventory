@@ -5,8 +5,8 @@ Config = {
     MaxSlots = 40,
 
     StashSize = {
-        maxweight = 1000000,
-        slots = 50
+        maxweight = 2000000,
+        slots = 100
     },
 
     DropSize = {
@@ -29,10 +29,6 @@ Config = {
         vector3(90.000000, 0.000000, -78.989998),
     },
 
-    BinObjects = {
-        'prop_bin_05a',
-    },
-
     VendingObjects = {
         'prop_vend_soda_01',
         'prop_vend_soda_02',
@@ -43,12 +39,5 @@ Config = {
     VendingItems = {
         { name = 'kurkakola',    price = 4, amount = 50 },
         { name = 'water_bottle', price = 4, amount = 50 },
-    },
-
-    MaximumAmmoValues = {
-        ['pistol'] = 250,
-        ['smg'] = 250,
-        ['shotgun'] = 200,
-        ['rifle'] = 250,
     },
 }

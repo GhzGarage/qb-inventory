@@ -89,6 +89,7 @@ const InventoryContainer = Vue.createApp({
                 notificationText: "",
                 notificationImage: "",
                 notificationType: "added",
+                notificationAmount: 1,
                 // Required items box
                 showRequiredItems: false,
                 requiredItems: [],
@@ -658,6 +659,10 @@ const InventoryContainer = Vue.createApp({
                             item: selectedItem,
                             amount: amountToGive,
                         });
+                        this.playerInventory[selectedItem.slot].amount -= amountToGive;
+                        if (this.playerInventory[selectedItem.slot].amount === 0) {
+                            delete this.playerInventory[selectedItem.slot];
+                        }
                     } catch (error) {
                         console.error("An error occurred while giving the item:", error);
                     }
@@ -704,6 +709,7 @@ const InventoryContainer = Vue.createApp({
             this.notificationText = itemData.item.label;
             this.notificationImage = "images/" + itemData.item.image;
             this.notificationType = itemData.type === "add" ? "Received" : itemData.type === "use" ? "Used" : "Removed";
+            this.notificationAmount = itemData.amount || 1;
             this.showNotification = true;
             setTimeout(() => {
                 this.showNotification = false;
@@ -833,7 +839,7 @@ const InventoryContainer = Vue.createApp({
                     toAmount,
                 })
                 .then((response) => {
-                    this.clearDragData(); // Ensure this is called here
+                    this.clearDragData();
                 })
                 .catch((error) => {
                     console.error("Error posting inventory data:", error);

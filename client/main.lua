@@ -65,6 +65,42 @@ local function FormatWeaponAttachments(itemdata)
     return attachments
 end
 
+--- Checks if the player has a certain item or items in their inventory with a specified amount.
+--- @param items string|table - The item(s) to check for. Can be a table of items or a single item as a string.
+--- @param amount number [optional] - The minimum amount required for each item. If not provided, any amount greater than 0 will be considered.
+--- @return boolean - Returns true if the player has the item(s) with the specified amount, false otherwise.
+function HasItem(items, amount)
+    local isTable = type(items) == 'table'
+    local isArray = isTable and table.type(items) == 'array' or false
+    local totalItems = isArray and #items or 0
+    local count = 0
+
+    if isTable and not isArray then
+        for _ in pairs(items) do totalItems = totalItems + 1 end
+    end
+
+    for _, itemData in pairs(PlayerData.items) do
+        if isTable then
+            for k, v in pairs(items) do
+                if itemData and itemData.name == (isArray and v or k) and ((amount and itemData.amount >= amount) or (not isArray and itemData.amount >= v) or (not amount and isArray)) then
+                    count = count + 1
+                    if count == totalItems then
+                        return true
+                    end
+                end
+            end
+        else -- Single item as string
+            if itemData and itemData.name == items and (not amount or (itemData and amount and itemData.amount >= amount)) then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+exports('HasItem', HasItem)
+
 -- Events
 
 RegisterNetEvent('qb-inventory:client:requiredItems', function(items, bool)
@@ -101,18 +137,19 @@ RegisterNetEvent('qb-inventory:client:closeInv', function()
     })
 end)
 
-RegisterNetEvent('qb-inventory:client:updateInventory', function(items)
+RegisterNetEvent('qb-inventory:client:updateInventory', function()
     SendNUIMessage({
         action = 'update',
-        inventory = items
+        inventory = PlayerData.items
     })
 end)
 
-RegisterNetEvent('qb-inventory:client:ItemBox', function(itemData, type)
+RegisterNetEvent('qb-inventory:client:ItemBox', function(itemData, type, amount)
     SendNUIMessage({
         action = 'itemBox',
         item = itemData,
-        type = type
+        type = type,
+        amount = amount
     })
 end)
 
@@ -201,7 +238,6 @@ end)
 
 RegisterNUICallback('CloseInventory', function(data, cb)
     SetNuiFocus(false, false)
-    CloseTrunk()
     if data.name then
         TriggerServerEvent('qb-inventory:server:closeInventory', data.name)
     elseif CurrentDrop then
@@ -221,13 +257,19 @@ RegisterNUICallback('SetInventoryData', function(data, cb)
     cb('ok')
 end)
 
+RegisterNetEvent('qb-inventory:client:giveAnim', function()
+    if IsPedInAnyVehicle(PlayerPedId(), false) then return end
+    LoadAnimDict('mp_common')
+    TaskPlayAnim(PlayerPedId(), 'mp_common', 'givetake1_b', 8.0, 1.0, -1, 16, 0, false, false, false)
+end)
+
 RegisterNUICallback('GiveItem', function(data, cb)
     local player, distance = QBCore.Functions.GetClosestPlayer(GetEntityCoords(PlayerPedId()))
     if player ~= -1 and distance < 3 then
         local playerId = GetPlayerServerId(player)
         QBCore.Functions.TriggerCallback('qb-inventory:server:giveItem', function(success)
             cb(success)
-        end, playerId, data.item.name)
+        end, playerId, data.item.name, data.amount)
     else
         QBCore.Functions.Notify(Lang:t('notify.nonb'), 'error')
         cb(false)
@@ -275,6 +317,22 @@ RegisterNUICallback('RemoveAttachment', function(data, cb)
             cb({})
         end
     end, data.AttachmentData, WeaponData)
+end)
+
+-- Vending
+
+CreateThread(function()
+    exports['qb-target']:AddTargetModel(Config.VendingObjects, {
+        options = {
+            {
+                type = 'server',
+                event = 'qb-inventory:server:openVending',
+                icon = 'fa-solid fa-cash-register',
+                label = Lang:t('menu.vending'),
+            },
+        },
+        distance = 2.5
+    })
 end)
 
 -- Commands

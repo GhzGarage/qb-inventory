@@ -125,6 +125,11 @@ RegisterNetEvent('qb-inventory:server:closeInventory', function(inventory)
     if not QBPlayer then return end
     Player(source).state.inv_busy = false
     if inventory:find('shop-') then return end
+    if inventory:find('otherplayer-') then
+        local targetId = tonumber(inventory:match('otherplayer%-(.+)'))
+        Player(targetId).state.inv_busy = false
+        return
+    end
     if Drops[inventory] then
         Drops[inventory].isOpen = false
         return
@@ -242,9 +247,9 @@ QBCore.Functions.CreateCallback('qb-inventory:server:attemptPurchase', function(
     end
 end)
 
-QBCore.Functions.CreateCallback('qb-inventory:server:giveItem', function(source, cb, target, item)
-    local Player = QBCore.Functions.GetPlayer(source)
-    if not Player or Player.PlayerData.metadata['isdead'] or Player.PlayerData.metadata['inlaststand'] or Player.PlayerData.metadata['ishandcuffed'] then
+QBCore.Functions.CreateCallback('qb-inventory:server:giveItem', function(source, cb, target, item, amount)
+    local player = QBCore.Functions.GetPlayer(source)
+    if not player or player.PlayerData.metadata['isdead'] or player.PlayerData.metadata['inlaststand'] or player.PlayerData.metadata['ishandcuffed'] then
         cb(false)
         return
     end
@@ -282,7 +287,7 @@ QBCore.Functions.CreateCallback('qb-inventory:server:giveItem', function(source,
         return
     end
 
-    local giveAmount = tonumber(itemAmount)
+    local giveAmount = tonumber(amount)
     if giveAmount > itemAmount then
         cb(false)
         return
@@ -301,7 +306,11 @@ QBCore.Functions.CreateCallback('qb-inventory:server:giveItem', function(source,
     end
 
     if itemInfo.type == 'weapon' then SetCurrentPedWeapon(playerPed, `WEAPON_UNARMED`, true) end
-    TaskPlayAnim(playerPed, 'mp_common', 'givetake1_b', 8.0, 1.0, -1, 16, 0, false, false, false)
+    TriggerClientEvent('qb-inventory:client:giveAnim', source)
+    TriggerClientEvent('qb-inventory:client:ItemBox', source, itemInfo, 'remove', giveAmount)
+    TriggerClientEvent('qb-inventory:client:giveAnim', target)
+    TriggerClientEvent('qb-inventory:client:ItemBox', target, itemInfo, 'add', giveAmount)
+    if Player(target).state.inv_busy then TriggerClientEvent('qb-inventory:client:updateInventory', target) end
     cb(true)
 end)
 
@@ -348,10 +357,7 @@ RegisterNetEvent('qb-inventory:server:SetInventoryData', function(fromInventory,
     local toItem = getItem(toInventory, src, toSlot)
 
     if fromItem then
-        if not toItem and toAmount > fromItem.amount then
-            print('User tried moving too many items')
-            return
-        end
+        if not toItem and toAmount > fromItem.amount then return end
 
         local fromId = getIdentifier(fromInventory, src)
         local toId = getIdentifier(toInventory, src)

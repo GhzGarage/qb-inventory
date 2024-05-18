@@ -16,8 +16,6 @@ client_scripts {
     'client/main.lua',
     'client/drops.lua',
     'client/vehicles.lua',
-    'client/dumpsters.lua',
-    'client/vending.lua',
 }
 
 server_scripts {

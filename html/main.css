@@ -9,7 +9,7 @@ div {
 }
 
 #app {
-    height: 98vh;
+    height: 99vh;
     width: 99vw;
     background: transparent;
 }
@@ -20,64 +20,82 @@ div {
 }
 
 /* Player Inventory Styles */
+
 .player-inventory {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-content: flex-start;
     position: absolute;
-    top: 26%;
-    left: 14.2%;
-    width: 28%;
-    height: 47.16%;
-    float: left;
+    top: 50vh;
+    left: 14vw;
+    width: 28vw;
+    height: 47.16vh;
     overflow-x: hidden;
     overflow-y: scroll;
+    transform: translateY(-50%);
 }
 
-.centered-player-inventory {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.player-inventory-header {
+    box-sizing: border-box;
+    position: absolute;
+    top: 20.8vh;
+    left: 14vw;
+    width: 27.9vw;
+    height: fit-content;
+    font-weight: bolder;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 /* Other Inventory Styles */
+
 .other-inventory {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-content: flex-start;
     position: absolute;
-    top: 26%;
-    right: 14.2%;
-    width: 28%;
-    height: 47.16%;
-    float: left;
+    top: 50vh;
+    right: 14vw;
+    width: 28vw;
+    height: 47.16vh;
     overflow-x: hidden;
     overflow-y: scroll;
+    transform: translateY(-50%);
 }
 
-.player-inventory-header {
+.other-inventory-header {
+    box-sizing: border-box;
     position: absolute;
-    top: 21%;
-    left: 14.2%;
-    width: 27.7%;
+    top: 20.8vh;
+    right: 14.1vw;
+    width: 27.9vw;
     height: fit-content;
-    float: left;
     font-weight: bolder;
     color: white;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 5px;
+}
+
+/* Centered Styles */
+
+.centered-player-inventory {
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
 }
 
 .centered-inventory-header {
+    box-sizing: border-box;
     position: absolute;
-    top: 24%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 27.7%;
+    top: 20.8vh;
+    width: 27.9vw;
+    left: 50vw;
+    transform: translateX(-50%);
     height: fit-content;
     font-weight: bolder;
     color: white;
@@ -85,40 +103,15 @@ div {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 5px;
-}
-
-.other-inventory-header {
-    position: absolute;
-    top: 21%;
-    right: 14.2%;
-    width: 27.7%;
-    height: fit-content;
-    float: left;
-    font-weight: bolder;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 5px;
 }
 
 .labels-container {
     display: flex;
-    justify-content: space-between;
     width: 100%;
 }
 
 .inventory-label {
-    text-align: left;
     flex-grow: 1;
-}
-
-.current-weight {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    text-align: right;
 }
 
 .item-grid {
