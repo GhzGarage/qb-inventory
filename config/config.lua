@@ -19,7 +19,9 @@ Config = {
         Hotbar = 'Z',
     },
 
-    CleanupDropTime = 15 * 60,
+    CleanupDropTime = 15,    -- in minutes
+    CleanupDropInterval = 1, -- in minutes
+
     ItemDropObject = `bkr_prop_duffel_bag_01a`,
     ItemDropObjectBone = 28422,
     ItemDropObjectOffset = {

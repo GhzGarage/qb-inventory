@@ -43,7 +43,7 @@ exports('LoadInventory', LoadInventory)
 function SaveInventory(source, offline)
     local PlayerData
     if offline then
-        PlayerData = source -- for offline users, the playerdata gets sent over the source variable
+        PlayerData = source
     else
         local Player = QBCore.Functions.GetPlayer(source)
         if not Player then return end
@@ -53,7 +53,7 @@ function SaveInventory(source, offline)
     local items = PlayerData.items
     local ItemsJson = {}
 
-    if items and next(items) then -- using next() to check if table is not empty
+    if items and next(items) then
         for slot, item in pairs(items) do
             if item then
                 ItemsJson[#ItemsJson + 1] = {
@@ -208,6 +208,7 @@ function ClearInventory(source, filterItems)
     if not Player.Offline then
         local logMessage = string.format('**%s (citizenid: %s | id: %s)** inventory cleared', GetPlayerName(source), Player.PlayerData.citizenid, source)
         TriggerEvent('qb-log:server:CreateLog', 'playerinventory', 'ClearInventory', 'red', logMessage)
+        TriggerClientEvent('qb-inventory:client:updateInventory', source, savedItemData)
     end
 end
 
@@ -302,6 +303,7 @@ function CloseInventory(source, identifier)
     if identifier and Inventories[identifier] then
         Inventories[identifier].isOpen = false
     end
+    Player(source).state.inv_busy = false
     TriggerClientEvent('qb-inventory:client:closeInv', source)
 end
 
@@ -324,16 +326,6 @@ function OpenInventoryById(source, targetId)
 end
 
 exports('OpenInventoryById', OpenInventoryById)
-
-function OpenInventoryByName(source, identifier)
-    local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return end
-    local playerItems = Player.PlayerData.items
-    local targetItems = Inventories[identifier] and Inventories[identifier].items or {}
-    TriggerClientEvent('qb-inventory:client:openInventory', source, playerItems, targetItems)
-end
-
-exports('OpenInventoryByName', OpenInventoryByName)
 
 local function SetupShopItems(shopItems)
     local items = {}
@@ -412,7 +404,7 @@ function OpenShop(source, name)
     local formattedInventory = {
         name = 'shop-' .. RegisteredShops[name].name,
         label = RegisteredShops[name].label,
-        maxweight = 1000000,
+        maxweight = 5000000,
         slots = #RegisteredShops[name].items,
         inventory = RegisteredShops[name].items
     }
@@ -432,11 +424,13 @@ local function InitializeInventory(inventoryId, data)
 end
 
 function OpenInventory(source, identifier, data)
-    local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return end
+    if Player(source).state.inv_busy then return end
+    local QBPlayer = QBCore.Functions.GetPlayer(source)
+    if not QBPlayer then return end
 
     if not identifier then
-        TriggerClientEvent('qb-inventory:client:openInventory', source, Player.PlayerData.items)
+        Player(source).state.inv_busy = true
+        TriggerClientEvent('qb-inventory:client:openInventory', source, QBPlayer.PlayerData.items)
         return
     end
 
@@ -464,8 +458,7 @@ function OpenInventory(source, identifier, data)
         slots = inventory.slots,
         inventory = inventory.items
     }
-
-    TriggerClientEvent('qb-inventory:client:openInventory', source, Player.PlayerData.items, formattedInventory)
+    TriggerClientEvent('qb-inventory:client:openInventory', source, QBPlayer.PlayerData.items, formattedInventory)
 end
 
 exports('OpenInventory', OpenInventory)
@@ -473,11 +466,15 @@ exports('OpenInventory', OpenInventory)
 function AddItem(identifier, item, amount, slot, info, reason)
     local inventory, inventoryWeight
     local player = QBCore.Functions.GetPlayer(identifier)
+
     if player then
         inventory = player.PlayerData.items
-    else
+    elseif Inventories[identifier] then
         inventory = Inventories[identifier].items
         inventoryWeight = Inventories[identifier].maxweight
+    elseif Drops[identifier] then
+        inventory = Drops[identifier].items
+        inventoryWeight = Drops[identifier].maxweight
     end
 
     if not inventory then
@@ -547,7 +544,13 @@ function AddItem(identifier, item, amount, slot, info, reason)
         end
     end
 
-    if player then player.Functions.SetPlayerData('items', inventory) end
+    if player then
+        player.Functions.SetPlayerData('items', inventory)
+        -- if Player(identifier).state.inv_busy then
+        --     local updatedItems = QBCore.Functions.GetPlayer(identifier).PlayerData.items
+        --     TriggerClientEvent('qb-inventory:client:updateInventory', identifier, updatedItems)
+        -- end
+    end
     local invName = player and GetPlayerName(identifier) .. ' (' .. identifier .. ')' or identifier
     local addReason = reason or 'No reason specified'
     local resourceName = GetInvokingResource() or 'qb-inventory'
@@ -570,10 +573,13 @@ exports('AddItem', AddItem)
 function RemoveItem(identifier, item, amount, slot, reason)
     local inventory
     local player = QBCore.Functions.GetPlayer(identifier)
+
     if player then
         inventory = player.PlayerData.items
-    else
+    elseif Inventories[identifier] then
         inventory = Inventories[identifier].items
+    elseif Drops[identifier] then
+        inventory = Drops[identifier].items
     end
 
     if not inventory then
@@ -605,7 +611,13 @@ function RemoveItem(identifier, item, amount, slot, reason)
         inventory[slot] = nil
     end
 
-    if player then player.Functions.SetPlayerData('items', inventory) end
+    if player then
+        player.Functions.SetPlayerData('items', inventory)
+        -- if Player(identifier).state.inv_busy then
+        --     local updatedItems = QBCore.Functions.GetPlayer(identifier).PlayerData.items
+        --     TriggerClientEvent('qb-inventory:client:updateInventory', identifier, updatedItems)
+        -- end
+    end
     local invName = player and GetPlayerName(identifier) .. ' (' .. identifier .. ')' or identifier
     local removeReason = reason or 'No reason specified'
     local resourceName = GetInvokingResource() or 'qb-inventory'

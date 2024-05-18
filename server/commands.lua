@@ -48,7 +48,7 @@ QBCore.Commands.Add('giveitem', 'Give An Item (Admin Only)', { { name = 'id', he
     end
 end, 'admin')
 
-RegisterCommand('randomitems', function(source)
+QBCore.Commands.Add('randomitems', 'Receive random items', {}, false, function(source)
     local Player = QBCore.Functions.GetPlayer(source)
     local playerInventory = Player.PlayerData.items
     local filteredItems = {}
@@ -79,11 +79,18 @@ RegisterCommand('randomitems', function(source)
             Wait(1000)
         end
     end
-end, false)
+end, 'god')
 
-RegisterCommand('clearinv', function(source)
-    ClearInventory(source)
-end, false)
+QBCore.Commands.Add('clearinv', 'Clear Inventory (Admin Only)', { { name = 'id', help = 'Player ID' } }, false, function(source, args)
+    local id = tonumber(args[1])
+    if not id then
+        ClearInventory(source)
+        return
+    end
+    ClearInventory(id)
+end, 'admin')
+
+-- Keybindings
 
 RegisterCommand('closeInv', function(source)
     CloseInventory(source)

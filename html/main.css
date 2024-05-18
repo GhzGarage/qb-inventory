@@ -36,9 +36,9 @@ div {
 }
 
 .centered-player-inventory {
-    top: 50%; /* Center vertically */
-    left: 50%; /* Center horizontally */
-    transform: translate(-50%, -50%); /* Center both horizontally and vertically */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* Other Inventory Styles */
@@ -67,25 +67,25 @@ div {
     font-weight: bolder;
     color: white;
     display: flex;
-    flex-direction: column; /* Stack children in a column */
-    align-items: flex-start; /* Align items to the start (left) of the column */
-    padding: 5px; /* Add padding to create space around child elements */
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 5px;
 }
 
 .centered-inventory-header {
     position: absolute;
-    top: 24%; /* Center vertically */
-    left: 50%; /* Center horizontally */
-    transform: translate(-50%, -50%); /* Center the element perfectly */
-    width: 27.7%; /* Adjust the width as needed */
+    top: 24%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 27.7%;
     height: fit-content;
     font-weight: bolder;
     color: white;
     display: flex;
-    flex-direction: column; /* Stack children in a column */
-    align-items: center; /* Center items horizontally */
-    justify-content: center; /* Center items vertically */
-    padding: 5px; /* Add padding to create space around child elements */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
 }
 
 .other-inventory-header {
@@ -98,43 +98,42 @@ div {
     font-weight: bolder;
     color: white;
     display: flex;
-    flex-direction: column; /* Stack children in a column */
-    align-items: flex-start; /* Align items to the start (left) of the column */
-    padding: 5px; /* Add padding to create space around child elements */
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 5px;
 }
 
 .labels-container {
     display: flex;
-    justify-content: space-between; /* Add space between child elements */
-    width: 100%; /* Ensure it takes the full width of the parent */
+    justify-content: space-between;
+    width: 100%;
 }
 
 .inventory-label {
-    /* You can add styles for the name here, e.g., to align it to the left */
     text-align: left;
-    flex-grow: 1; /* Allow it to grow and push the weight to the right */
+    flex-grow: 1;
 }
 
 .current-weight {
     display: flex;
     flex-direction: column;
-    align-items: flex-end; /* Align text to the right */
+    align-items: flex-end;
     text-align: right;
 }
 
 .item-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 2px; /* Adjust the gap as needed */
+    gap: 2px;
     align-content: flex-start;
     width: 100%;
 }
 
 .item-slot {
     position: relative;
-    display: flex; /* Added this line */
-    align-items: center; /* Added this line */
-    justify-content: center; /* Added this line */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: calc(20% - 2px);
     height: 10vh;
     background-color: rgba(0, 0, 0, 0.3);
@@ -142,8 +141,8 @@ div {
 
 .item-slot-img {
     display: flex;
-    justify-content: center; /* Center the image horizontally */
-    align-items: center; /* Center the image vertically */
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
     margin: 0;
@@ -152,21 +151,21 @@ div {
 
 .item-slot-img img {
     width: 50%;
-    height: auto; /* Keep this to maintain aspect ratio */
+    height: auto;
 }
 
 .item-slot-key {
     font-weight: bolder;
     color: #000000;
     position: absolute;
-    top: 5px; /* Adjust according to your preference */
-    left: 5px; /* Adjust according to your preference */
-    width: 20px; /* Define your desired square size */
-    height: 20px; /* Define your desired square size */
-    background-color: #cccccc; /* Optional: give it a slight background to make it distinguishable */
+    top: 5px;
+    left: 5px;
+    width: 20px;
+    height: 20px;
+    background-color: #cccccc;
     display: flex;
-    align-items: center; /* Center the content vertically */
-    justify-content: center; /* Center the content horizontally */
+    align-items: center;
+    justify-content: center;
     border-radius: 3px;
     box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1), 0 2px 2px rgba(0, 0, 0, 0.2);
     background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
@@ -176,26 +175,26 @@ div {
     font-size: 0.7vh;
     color: white;
     position: absolute;
-    top: 5px; /* Adjust according to your preference */
-    right: 5px; /* Adjust according to your preference */
-    width: 20px; /* Define your desired square size */
-    height: 20px; /* Define your desired square size */
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
     display: flex;
-    align-items: center; /* Center the content vertically */
-    justify-content: center; /* Center the content horizontally */
+    align-items: center;
+    justify-content: center;
 }
 
 .item-price {
     font-size: 0.7vh;
     color: white;
     position: absolute;
-    top: 5px; /* Adjust according to your preference */
-    left: 5px; /* Adjust according to your preference */
-    width: 20px; /* Define your desired square size */
-    height: 20px; /* Define your desired square size */
+    top: 5px;
+    left: 5px;
+    width: 20px;
+    height: 20px;
     display: flex;
-    align-items: center; /* Center the content vertically */
-    justify-content: center; /* Center the content horizontally */
+    align-items: center;
+    justify-content: center;
 }
 
 .item-slot-label {
@@ -205,18 +204,18 @@ div {
     height: 1vh;
     width: 99%;
     background-color: #cccccc;
-    display: flex; /* Add this line */
-    justify-content: center; /* Add this line to center horizontally */
-    align-items: center; /* Add this line to center vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1), 0 2px 2px rgba(0, 0, 0, 0.2);
     background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
 }
 
 .item-slot-durability {
     position: absolute;
-    bottom: 0vh; /* This is the height of the item-slot-label, so adjust it if the height of the label changes */
+    bottom: 0vh;
     width: 99%;
-    height: 6px; /* Height of the durability bar */
+    height: 6px;
     background-color: #2d2d2d;
 }
 
@@ -225,17 +224,16 @@ div {
     transition: width 0.2s;
 }
 
-/* Define different colors based on the durability percentage */
 .item-slot-durability-fill.high {
-    background-color: green; /* Green when the durability is high */
+    background-color: green;
 }
 
 .item-slot-durability-fill.medium {
-    background-color: yellow; /* Yellow when the durability is medium */
+    background-color: yellow;
 }
 
 .item-slot-durability-fill.low {
-    background-color: red; /* Red when the durability is low */
+    background-color: red;
 }
 
 .item-slot-label > p {
@@ -254,30 +252,25 @@ div {
 }
 
 .weight-bar {
-    width: 100%; /* Make the weight bar span the full width of the header */
+    width: 100%;
     background-color: #2d2d2d;
 }
 
-/* Style the weight bar fill */
 .weight-bar-fill {
     height: 5px;
     transition: width 0.2s;
 }
 
-/* Define different colors based on the percentage */
 .weight-bar-fill.low {
     background-color: green;
-    /* Green when the weight is low */
 }
 
 .weight-bar-fill.medium {
     background-color: yellow;
-    /* Yellow when the weight is medium */
 }
 
 .weight-bar-fill.high {
     background-color: red;
-    /* Red when the weight is high */
 }
 
 /* Hotbar */
@@ -369,18 +362,52 @@ div {
 }
 
 .context-menu li {
-    padding: 8px 12px; /* Slightly larger horizontal padding */
-    display: flex; /* To align the text and the icons */
+    padding: 8px 12px;
+    display: flex;
     align-items: center;
+}
+
+.context-menu li:hover {
+    background-color: #444444;
+}
+
+.submenu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    font-size: 0.9vh;
+    background-color: #2c2c2c;
+    border: 1px solid #000;
+    border-radius: 4px;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: none;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 8%), 0 2px 2px rgb(0 0 0 / 3%), 0 4px 4px rgb(0 0 0 / 4%), 0 10px 8px rgb(0 0 0 / 5%), 0 15px 15px rgb(0 0 0 / 6%), 0 30px 30px rgb(0 0 0 / 7%), 0 70px 65px rgb(0 0 0 / 9%);
+    z-index: 1001;
+}
+
+.context-menu li:hover .submenu {
+    display: block;
+}
+
+.submenu li {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+}
+
+.submenu li:hover {
+    background-color: #444444;
 }
 
 /* Input Container */
 
 .input-container {
     position: absolute;
-    width: 4%; /* Adjust the width as needed */
-    top: calc(26% + ((47.16% - 3vh) / 2)); /* Calculate the top position */
-    left: 50%; /* Calculate the left position */
+    width: 4%;
+    top: calc(26% + ((47.16% - 3vh) / 2));
+    left: 50%;
     transform: translate(-50%, -50%);
     background-color: #2c2c2c;
     border-radius: 4px;
@@ -415,7 +442,7 @@ div {
 }
 
 .clear-button .fas {
-    color: white; /* Change this to your desired color */
+    color: white;
 }
 
 .custom-tooltip {

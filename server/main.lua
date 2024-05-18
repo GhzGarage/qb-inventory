@@ -22,13 +22,13 @@ end)
 CreateThread(function()
     while true do
         for k, v in pairs(Drops) do
-            if v and (v.createdTime + Config.CleanupDropTime < os.time()) and not Drops[k].isOpen then
+            if v and (v.createdTime + (Config.CleanupDropTime * 60) < os.time()) and not Drops[k].isOpen then
                 local entity = NetworkGetEntityFromNetworkId(v.entityId)
                 if DoesEntityExist(entity) then DeleteEntity(entity) end
                 Drops[k] = nil
             end
         end
-        Wait(60 * 1000)
+        Wait(Config.CleanupDropInterval * 60000)
     end
 end)
 
@@ -121,8 +121,9 @@ end)
 
 RegisterNetEvent('qb-inventory:server:closeInventory', function(inventory)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    if not Player then return end
+    local QBPlayer = QBCore.Functions.GetPlayer(src)
+    if not QBPlayer then return end
+    Player(source).state.inv_busy = false
     if inventory:find('shop-') then return end
     if Drops[inventory] then
         Drops[inventory].isOpen = false
@@ -174,7 +175,7 @@ end)
 
 -- Callbacks
 
-QBCore.Functions.CreateCallback('qb-inventory:server:GetCurrentDrops', function()
+QBCore.Functions.CreateCallback('qb-inventory:server:GetCurrentDrops', function(_, cb)
     cb(Drops)
 end)
 
@@ -188,6 +189,7 @@ QBCore.Functions.CreateCallback('qb-inventory:server:createDrop', function(sourc
     local playerPed = GetPlayerPed(src)
     local playerCoords = GetEntityCoords(playerPed)
     if RemoveItem(src, item.name, item.amount, item.fromSlot) then
+        if item.type == 'weapon' then SetCurrentPedWeapon(playerPed, `WEAPON_UNARMED`, true) end
         TaskPlayAnim(playerPed, 'pickup_object', 'pickup_low', 8.0, -8.0, 2000, 0, 0, false, false, false)
         local bag = CreateObjectNoOffset(Config.ItemDropObject, playerCoords.x + 0.5, playerCoords.y + 0.5, playerCoords.z, true, true, false)
         local dropId = NetworkGetNetworkIdFromEntity(bag)
@@ -227,7 +229,7 @@ QBCore.Functions.CreateCallback('qb-inventory:server:attemptPurchase', function(
         Player.Functions.RemoveMoney('cash', price, 'shop-purchase')
         local item = AddItem(source, itemInfo.name, amount, nil, itemInfo.info)
         if item then
-            TriggerClientEvent('qb-shops:client:UpdateShop', src, itemInfo, amount)
+            TriggerClientEvent('qb-shops:client:UpdateShop', source, itemInfo, amount)
             cb(true)
         else
             Player.Functions.AddMoney('cash', price, 'shop-purchase-refund')
@@ -300,8 +302,6 @@ QBCore.Functions.CreateCallback('qb-inventory:server:giveItem', function(source,
 
     if itemInfo.type == 'weapon' then SetCurrentPedWeapon(playerPed, `WEAPON_UNARMED`, true) end
     TaskPlayAnim(playerPed, 'mp_common', 'givetake1_b', 8.0, 1.0, -1, 16, 0, false, false, false)
-    local updatedTarget = QBCore.Functions.GetPlayer(target)
-    TriggerClientEvent('qb-inventory:client:updateInventory', target, updatedTarget.PlayerData.items)
     cb(true)
 end)
 
@@ -318,6 +318,8 @@ local function getItem(inventoryId, src, slot)
         if targetPlayer then
             item = targetPlayer.PlayerData.items[slot]
         end
+    elseif inventoryId:find('drop-') then
+        item = Drops[inventoryId]['items'][slot]
     else
         item = Inventories[inventoryId]['items'][slot]
     end
@@ -335,7 +337,6 @@ local function getIdentifier(inventoryId, src)
 end
 
 RegisterNetEvent('qb-inventory:server:SetInventoryData', function(fromInventory, toInventory, fromSlot, toSlot, fromAmount, toAmount)
-    print(fromInventory, toInventory, fromSlot, toSlot, fromAmount, toAmount)
     if not fromInventory or not toInventory or not fromSlot or not toSlot or not fromAmount or not toAmount then return end
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
@@ -347,10 +348,7 @@ RegisterNetEvent('qb-inventory:server:SetInventoryData', function(fromInventory,
     local toItem = getItem(toInventory, src, toSlot)
 
     if fromItem then
-        print('-------------------------\nFrom Inventory: ' .. fromInventory .. ' (Slot being moved from: ' .. fromSlot .. ') (Item being moved: ' .. fromItem.name .. ') (Amount leftover in slot: ' .. fromAmount .. ')\nTo Inventory: ' .. toInventory .. ' (Slot being moved to: ' .. toSlot .. ') (Item in slot: ' .. (toItem and toItem.name or 'empty') .. ') (Amount being added: ' .. toAmount .. ')')
-        print('Amount found in from inventory slot being moved from: ' .. fromItem.amount .. '\nAmount found in to inventory slot being moved to: ' .. (toItem and toItem.amount or 0))
-
-        if toAmount > fromItem.amount then
+        if not toItem and toAmount > fromItem.amount then
             print('User tried moving too many items')
             return
         end

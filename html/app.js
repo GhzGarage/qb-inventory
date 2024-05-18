@@ -1,7 +1,3 @@
-const INVALID_SLOT_ERROR = "Invalid slot number.";
-const NOT_ENOUGH_ITEMS_ERROR = "Not enough items to transfer.";
-const UNIQUE_ITEM_ERROR = "Unique items cannot be stacked.";
-
 const InventoryContainer = Vue.createApp({
     data() {
         return this.getInitialState();
@@ -84,6 +80,7 @@ const InventoryContainer = Vue.createApp({
                 showContextMenu: false,
                 contextMenuPosition: { top: "0px", left: "0px" },
                 contextMenuItem: null,
+                showSubmenu: false,
                 // Hotbar
                 showHotbar: false,
                 hotbarItems: [],
@@ -238,10 +235,11 @@ const InventoryContainer = Vue.createApp({
             const targetInventory = sourceInventoryType === "player" ? this.otherInventory : this.playerInventory;
             const targetItemKey = Object.keys(targetInventory).find((key) => targetInventory[key] && targetInventory[key].name === item.name);
             const targetItem = targetInventory[targetItemKey];
+            const amountToTransfer = this.transferAmount !== null ? this.transferAmount : 1;
             let targetSlot = null;
 
             const sourceItem = sourceInventory[item.slot];
-            if (!sourceItem || sourceItem.amount < item.amount) {
+            if (!sourceItem || sourceItem.amount < amountToTransfer) {
                 console.error("Error: Insufficient amount of item in source inventory");
                 return;
             }
@@ -250,7 +248,7 @@ const InventoryContainer = Vue.createApp({
                 const newItem = {
                     ...item,
                     inventory: sourceInventoryType === "player" ? "other" : "player",
-                    amount: 1,
+                    amount: amountToTransfer,
                 };
 
                 let added = false;
@@ -269,28 +267,17 @@ const InventoryContainer = Vue.createApp({
                     return;
                 }
             } else {
-                targetItem.amount++;
+                targetItem.amount += amountToTransfer;
                 targetSlot = targetItem.slot;
             }
 
-            item.amount--;
+            sourceItem.amount -= amountToTransfer;
 
-            if (item.amount <= 0) {
+            if (sourceItem.amount <= 0) {
                 delete sourceInventory[item.slot];
             }
 
-            this.postInventoryData(sourceInventoryType, sourceInventoryType === "player" ? "other" : "player", item.slot, targetSlot, item.amount, 1);
-        },
-        createGhostElement(slotElement) {
-            const ghostElement = slotElement.cloneNode(true);
-            ghostElement.style.position = "absolute";
-            ghostElement.style.pointerEvents = "none";
-            ghostElement.style.opacity = "0.7";
-            ghostElement.style.zIndex = "1000";
-            ghostElement.style.width = getComputedStyle(slotElement).width;
-            ghostElement.style.height = getComputedStyle(slotElement).height;
-            ghostElement.style.boxSizing = "border-box";
-            return ghostElement;
+            this.postInventoryData(sourceInventoryType, sourceInventoryType === "player" ? "other" : "player", item.slot, targetSlot, sourceItem.amount, amountToTransfer);
         },
         startDrag(event, slot, inventoryType) {
             event.preventDefault();
@@ -311,20 +298,23 @@ const InventoryContainer = Vue.createApp({
             this.dragStartY = event.clientY;
             this.dragStartInventoryType = inventoryType;
         },
+        createGhostElement(slotElement) {
+            const ghostElement = slotElement.cloneNode(true);
+            ghostElement.style.position = "absolute";
+            ghostElement.style.pointerEvents = "none";
+            ghostElement.style.opacity = "0.7";
+            ghostElement.style.zIndex = "1000";
+            ghostElement.style.width = getComputedStyle(slotElement).width;
+            ghostElement.style.height = getComputedStyle(slotElement).height;
+            ghostElement.style.boxSizing = "border-box";
+            return ghostElement;
+        },
         drag(event) {
             if (!this.currentlyDraggingItem) return;
             const centeredX = event.clientX - this.ghostElement.offsetWidth / 2;
             const centeredY = event.clientY - this.ghostElement.offsetHeight / 2;
             this.ghostElement.style.left = `${centeredX}px`;
             this.ghostElement.style.top = `${centeredY}px`;
-        },
-        clearDragData() {
-            if (this.ghostElement) {
-                document.body.removeChild(this.ghostElement);
-                this.ghostElement = null;
-            }
-            this.currentlyDraggingItem = null;
-            this.currentlyDraggingSlot = null;
         },
         endDrag(event) {
             if (!this.currentlyDraggingItem) {
@@ -349,101 +339,6 @@ const InventoryContainer = Vue.createApp({
                 this.handleDropOnInventoryContainer();
             }
             this.clearDragData();
-        },
-        getInventoryByType(inventoryType) {
-            return inventoryType === "player" ? this.playerInventory : this.otherInventory;
-        },
-        transferItems(sourceInventory, targetInventory, sourceSlot, targetSlot, amount) {
-            const targetSlotNumber = parseInt(targetSlot, 10);
-            const sourceItem = sourceInventory[sourceSlot];
-            const targetItem = targetInventory[targetSlotNumber];
-
-            if (sourceItem && targetItem && sourceItem.name === targetItem.name) {
-                targetItem.amount += amount;
-                sourceItem.amount -= amount;
-            } else if (!targetItem) {
-                sourceItem.amount -= amount;
-                targetInventory[targetSlotNumber] = {
-                    ...sourceItem,
-                    amount,
-                };
-            } else {
-                sourceInventory[sourceSlot] = targetItem;
-                targetInventory[targetSlotNumber] = sourceItem;
-            }
-        },
-        handleItemDrop(targetInventoryType, targetSlot) {
-            try {
-                const targetSlotNumber = parseInt(targetSlot, 10);
-                if (isNaN(targetSlotNumber)) {
-                    throw new Error(INVALID_SLOT_ERROR);
-                }
-                const sourceInventory = this.getInventoryByType(this.dragStartInventoryType);
-                const targetInventory = this.getInventoryByType(targetInventoryType);
-                const sourceItem = sourceInventory[this.currentlyDraggingSlot];
-                const targetItem = targetInventory[targetSlotNumber];
-                const amountToTransfer = this.transferAmount !== null ? this.transferAmount : sourceItem.amount;
-                if (sourceItem.amount < amountToTransfer) {
-                    throw new Error(NOT_ENOUGH_ITEMS_ERROR);
-                }
-                if (targetItem && targetItem.unique) {
-                    throw new Error(UNIQUE_ITEM_ERROR);
-                }
-                this.transferItems(sourceInventory, targetInventory, this.currentlyDraggingSlot, targetSlotNumber, amountToTransfer);
-                if (sourceItem.amount <= 0) {
-                    delete sourceInventory[this.currentlyDraggingSlot];
-                }
-                this.postInventoryData(this.dragStartInventoryType, targetInventoryType, this.currentlyDraggingSlot, targetSlotNumber, sourceItem.amount, amountToTransfer);
-            } catch (error) {
-                this.inventoryError(this.currentlyDraggingSlot);
-                this.clearDragData();
-            }
-        },
-        async handlePurchase(targetSlot, sourceSlot, sourceItem, transferAmount) {
-            try {
-                const response = await axios.post("https://qb-inventory/AttemptPurchase", {
-                    item: sourceItem,
-                    amount: transferAmount || sourceItem.amount,
-                });
-                if (response.data) {
-                    const sourceInventory = this.getInventoryByType("other");
-                    const targetInventory = this.getInventoryByType("player");
-                    const amountToTransfer = transferAmount !== null ? transferAmount : sourceItem.amount;
-                    if (sourceItem.amount < amountToTransfer) {
-                        this.inventoryError(sourceSlot);
-                        return;
-                    }
-                    let targetItem = targetInventory[targetSlot];
-                    if (!targetItem || targetItem.name !== sourceItem.name) {
-                        let foundSlot = Object.keys(targetInventory).find((slot) => targetInventory[slot] && targetInventory[slot].name === sourceItem.name);
-                        if (foundSlot) {
-                            targetInventory[foundSlot].amount += amountToTransfer;
-                        } else {
-                            const targetInventoryKeys = Object.keys(targetInventory);
-                            if (targetInventoryKeys.length < this.totalSlots) {
-                                let freeSlot = Array.from({ length: this.totalSlots }, (_, i) => i + 1).find((i) => !(i in targetInventory));
-                                targetInventory[freeSlot] = {
-                                    ...sourceItem,
-                                    amount: amountToTransfer,
-                                };
-                            } else {
-                                this.inventoryError(sourceSlot);
-                                return;
-                            }
-                        }
-                    } else {
-                        targetItem.amount += amountToTransfer;
-                    }
-                    sourceItem.amount -= amountToTransfer;
-                    if (sourceItem.amount <= 0) {
-                        delete sourceInventory[sourceSlot];
-                    }
-                } else {
-                    this.inventoryError(sourceSlot);
-                }
-            } catch (error) {
-                this.inventoryError(sourceSlot);
-            }
         },
         handleDropOnPlayerSlot(targetSlot) {
             if (this.isShopInventory && this.dragStartInventoryType === "other") {
@@ -494,6 +389,174 @@ const InventoryContainer = Vue.createApp({
             }
             this.clearDragData();
         },
+        clearDragData() {
+            if (this.ghostElement) {
+                document.body.removeChild(this.ghostElement);
+                this.ghostElement = null;
+            }
+            this.currentlyDraggingItem = null;
+            this.currentlyDraggingSlot = null;
+        },
+        getInventoryByType(inventoryType) {
+            return inventoryType === "player" ? this.playerInventory : this.otherInventory;
+        },
+        handleItemDrop(targetInventoryType, targetSlot) {
+            try {
+                const targetSlotNumber = parseInt(targetSlot, 10);
+                if (isNaN(targetSlotNumber)) {
+                    throw new Error("Invalid target slot number");
+                }
+
+                const sourceInventory = this.getInventoryByType(this.dragStartInventoryType);
+                const targetInventory = this.getInventoryByType(targetInventoryType);
+
+                const sourceItem = sourceInventory[this.currentlyDraggingSlot];
+                if (!sourceItem) {
+                    throw new Error("No item in the source slot to transfer");
+                }
+
+                const amountToTransfer = this.transferAmount !== null ? this.transferAmount : sourceItem.amount;
+                if (sourceItem.amount < amountToTransfer) {
+                    throw new Error("Insufficient amount of item in source inventory");
+                }
+
+                const targetItem = targetInventory[targetSlotNumber];
+
+                if (targetItem) {
+                    if (sourceItem.name === targetItem.name && targetItem.unique) {
+                        this.inventoryError(this.currentlyDraggingSlot);
+                        return;
+                    }
+                    if (sourceItem.name === targetItem.name && !targetItem.unique) {
+                        targetItem.amount += amountToTransfer;
+                        sourceItem.amount -= amountToTransfer;
+                        if (sourceItem.amount <= 0) {
+                            delete sourceInventory[this.currentlyDraggingSlot];
+                        }
+                        this.postInventoryData(this.dragStartInventoryType, targetInventoryType, this.currentlyDraggingSlot, targetSlotNumber, sourceItem.amount, amountToTransfer);
+                    } else {
+                        sourceInventory[this.currentlyDraggingSlot] = targetItem;
+                        targetInventory[targetSlotNumber] = sourceItem;
+                        sourceInventory[this.currentlyDraggingSlot].slot = this.currentlyDraggingSlot;
+                        targetInventory[targetSlotNumber].slot = targetSlotNumber;
+                        this.postInventoryData(this.dragStartInventoryType, targetInventoryType, this.currentlyDraggingSlot, targetSlotNumber, amountToTransfer, targetItem.amount);
+                    }
+                } else {
+                    sourceItem.amount -= amountToTransfer;
+                    if (sourceItem.amount <= 0) {
+                        delete sourceInventory[this.currentlyDraggingSlot];
+                    }
+                    targetInventory[targetSlotNumber] = { ...sourceItem, amount: amountToTransfer, slot: targetSlotNumber };
+                    this.postInventoryData(this.dragStartInventoryType, targetInventoryType, this.currentlyDraggingSlot, targetSlotNumber, sourceItem.amount, amountToTransfer);
+                }
+            } catch (error) {
+                console.error(error.message);
+                this.inventoryError(this.currentlyDraggingSlot);
+            } finally {
+                this.clearDragData();
+            }
+        },
+        async handlePurchase(targetSlot, sourceSlot, sourceItem, transferAmount) {
+            try {
+                const response = await axios.post("https://qb-inventory/AttemptPurchase", {
+                    item: sourceItem,
+                    amount: transferAmount || sourceItem.amount,
+                });
+                if (response.data) {
+                    const sourceInventory = this.getInventoryByType("other");
+                    const targetInventory = this.getInventoryByType("player");
+                    const amountToTransfer = transferAmount !== null ? transferAmount : sourceItem.amount;
+                    if (sourceItem.amount < amountToTransfer) {
+                        this.inventoryError(sourceSlot);
+                        return;
+                    }
+                    let targetItem = targetInventory[targetSlot];
+                    if (!targetItem || targetItem.name !== sourceItem.name) {
+                        let foundSlot = Object.keys(targetInventory).find((slot) => targetInventory[slot] && targetInventory[slot].name === sourceItem.name);
+                        if (foundSlot) {
+                            targetInventory[foundSlot].amount += amountToTransfer;
+                        } else {
+                            const targetInventoryKeys = Object.keys(targetInventory);
+                            if (targetInventoryKeys.length < this.totalSlots) {
+                                let freeSlot = Array.from({ length: this.totalSlots }, (_, i) => i + 1).find((i) => !(i in targetInventory));
+                                targetInventory[freeSlot] = {
+                                    ...sourceItem,
+                                    amount: amountToTransfer,
+                                };
+                            } else {
+                                this.inventoryError(sourceSlot);
+                                return;
+                            }
+                        }
+                    } else {
+                        targetItem.amount += amountToTransfer;
+                    }
+                    sourceItem.amount -= amountToTransfer;
+                    if (sourceItem.amount <= 0) {
+                        delete sourceInventory[sourceSlot];
+                    }
+                } else {
+                    this.inventoryError(sourceSlot);
+                }
+            } catch (error) {
+                this.inventoryError(sourceSlot);
+            }
+        },
+        async dropItem(item, quantity) {
+            if (item && item.name) {
+                const playerItemKey = Object.keys(this.playerInventory).find((key) => this.playerInventory[key] && this.playerInventory[key].slot === item.slot);
+                if (playerItemKey) {
+                    let amountToGive;
+
+                    if (typeof quantity === "string") {
+                        switch (quantity) {
+                            case "half":
+                                amountToGive = Math.ceil(item.amount / 2);
+                                break;
+                            case "all":
+                                amountToGive = item.amount;
+                                break;
+                            default:
+                                console.error("Invalid quantity specified.");
+                                return;
+                        }
+                    } else if (typeof quantity === "number" && quantity > 0) {
+                        amountToGive = quantity;
+                    } else {
+                        console.error("Invalid quantity type specified.");
+                        return;
+                    }
+
+                    if (amountToGive > item.amount) {
+                        amountToGive = item.amount;
+                    }
+
+                    const newItem = {
+                        ...item,
+                        amount: amountToGive,
+                        slot: 1,
+                        inventory: "other",
+                    };
+
+                    try {
+                        const response = await axios.post("https://qb-inventory/DropItem", {
+                            ...newItem,
+                            fromSlot: item.slot,
+                        });
+
+                        if (response.data) {
+                            this.otherInventory[1] = newItem;
+                            this.otherInventoryName = response.data;
+                            this.otherInventoryLabel = response.data;
+                            this.isOtherInventoryEmpty = false;
+                        }
+                    } catch (error) {
+                        this.inventoryError(item.slot);
+                    }
+                }
+            }
+            this.showContextMenu = false;
+        },
         async useItem(item) {
             if (!item || item.useable === false) {
                 return;
@@ -505,6 +568,9 @@ const InventoryContainer = Vue.createApp({
                         inventory: "player",
                         item: item,
                     });
+                    if (item.shouldClose) {
+                        this.closeInventory();
+                    }
                 } catch (error) {
                     console.error("Error using the item: ", error);
                 }
@@ -559,23 +625,41 @@ const InventoryContainer = Vue.createApp({
                 this.contextMenuItem = item;
             }
         },
-        async giveItem() {
-            if (this.contextMenuItem && this.contextMenuItem.name) {
-                const selectedItem = this.contextMenuItem;
-                const playerHasItem = Object.values(this.playerInventory).some((item) => item && item.name === selectedItem.name);
+        async giveItem(item, quantity) {
+            if (item && item.name) {
+                const selectedItem = item;
+                const playerHasItem = Object.values(this.playerInventory).some((invItem) => invItem && invItem.name === selectedItem.name);
 
                 if (playerHasItem) {
+                    let amountToGive;
+                    if (typeof quantity === "string") {
+                        switch (quantity) {
+                            case "half":
+                                amountToGive = Math.ceil(selectedItem.amount / 2);
+                                break;
+                            case "all":
+                                amountToGive = selectedItem.amount;
+                                break;
+                            default:
+                                console.error("Invalid quantity specified.");
+                                return;
+                        }
+                    } else {
+                        amountToGive = quantity;
+                    }
+
+                    if (amountToGive > selectedItem.amount) {
+                        console.error("Specified quantity exceeds available amount.");
+                        return;
+                    }
+
                     try {
                         await axios.post("https://qb-inventory/GiveItem", {
                             item: selectedItem,
-                            amount: selectedItem.amount,
+                            amount: amountToGive,
                         });
-                        const itemKey = Object.keys(this.playerInventory).find((key) => this.playerInventory[key] && this.playerInventory[key].name === selectedItem.name);
-                        if (itemKey) {
-                            delete this.playerInventory[itemKey];
-                        }
                     } catch (error) {
-                        console.error("An error occurred while giving item:", error);
+                        console.error("An error occurred while giving the item:", error);
                     }
                 } else {
                     console.error("Player does not have the item in their inventory. Item cannot be given.");
@@ -649,6 +733,20 @@ const InventoryContainer = Vue.createApp({
                     slotElement.style.backgroundColor = "";
                 }
             }, 1000);
+        },
+        copySerial() {
+            if (!this.contextMenuItem) {
+                return;
+            }
+            const item = this.contextMenuItem;
+            if (item) {
+                const el = document.createElement("textarea");
+                el.value = item.info.serie;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand("copy");
+                document.body.removeChild(el);
+            }
         },
         openWeaponAttachments() {
             if (!this.contextMenuItem) {
