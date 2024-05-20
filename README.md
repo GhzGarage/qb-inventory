@@ -4,20 +4,15 @@
 - [qb-core](https://github.com/qbcore-framework/qb-core)
 - [qb-logs](https://github.com/qbcore-framework/qb-logs) - For logging transfer and other history
 
-## Screenshots
-![General]()
-![ID Card]()
-![Weapon]()
-![Shop]()
-![Glovebox]()
-![Trunk]()
-
 ## Features
 - Stashes (Personal and/or Shared)
 - Vehicle Trunk & Glovebox
 - Weapon Attachments
 - Shops
 - Item Drops
+
+## Documentation
+https://docs.qbcore.org/qbcore-documentation/qbcore-resources/qb-inventory
 
 ## Installation
 ### Manual
@@ -31,43 +26,14 @@
 ### Upload the new `inventory.sql` file to create the new `inventories` table
 ### Use the provided `migrate.sql` file to migrate all of your saved inventory data from stashes, trunks, etc
 ### Once complete, you can delete `gloveboxitems` `stashitems` and `trunkitems` tables from your database
-
-## Opening the inventory
-### The event `inventory:server:OpenInventory` has been removed, it will no longer open the inventory
-### How to open the inventory (server-side)
-```
-exports['qb-inventory']:OpenInventory(source) or exports['qb-inventory']:OpenInventory(source, identifier)
-```
-### Example (server)
-```
-local ped = GetPlayerPed(source)
-local vehicle = GetVehiclePedIsIn(ped, false)
-local plate = GetVehicleNumberPlateText(vehicle)
-exports['qb-inventory']:OpenInventory(source, 'glovebox-'..plate)
-```
-### WE WILL NOT BE CREATING A WRAPPER FOR THE OLD EVENT
-
-## Shops
-### We include coords in our shops because the inventory does distance checks, if you don't need a distance check you can put false or nil
-### How to create a shop (example from qb-shops server/main.lua)
-```
-CreateThread(function()
-    local shopInfo = {}
-    for shop, data in pairs(Config.Locations) do
-        shopInfo[shop] = {
-            name = shop,
-            label = data.label,
-            coords = data.coords,
-            items = data.products,
-        }
-    end
-    exports['qb-inventory']:CreateShop(shopInfo)
-end)
-```
-
-### How to open a shop (server-side)
-```
-exports['qb-inventory']:OpenShop(shopName) -- shopName is what's registered when you create the shop above
+```sql
+CREATE TABLE IF NOT EXISTS `inventories` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `identifier` VARCHAR(50) NOT NULL,
+  `items` LONGTEXT DEFAULT ('[]'),
+  PRIMARY KEY (`identifier`),
+  KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 ```
 
 # License
